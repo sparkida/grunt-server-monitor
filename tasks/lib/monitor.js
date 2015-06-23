@@ -1,6 +1,6 @@
 /**
- * grunt-express-reload
- * https://github.com/sparkida/grunt-express-reload
+ * grunt-server-monitor
+ * https://github.com/sparkida/grunt-server-monitor
  *
  * Copyright (c) 2015 Nicholas Riley
  * Licensed under the MIT license.
