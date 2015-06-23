@@ -2,7 +2,7 @@ grunt-server-monitor
 --------------------
 When things like **nodemon** and **supervisor** can be dreadfully slow and all you want to do is restart your server when files are updated.
 
-`Grunt-server-monitor` works with concurrent processes more effectively by relying `grunt-contrib-watch` to load a client which tells the monitor to reboot the server.
+`Grunt-server-monitor` works with concurrent processes more effectively by relying on `grunt-contrib-watch` to load a client which tells the monitor to reboot the server.
 
 Info
 ----
