@@ -1,0 +1,4 @@
+*.log
+*.pid
+tasks/lib/*.lock
+node_modules/

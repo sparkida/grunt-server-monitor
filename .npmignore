@@ -1,0 +1,10 @@
+*.log
+*.pid
+node_modules
+config/*local*
+*.wsdl
+.git
+.gitignore
+.history
+.npmignore
+.watchignore
