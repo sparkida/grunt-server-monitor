@@ -7,7 +7,6 @@
  */
 
 'use strict';
-
 var path = require('path'),
 	Monitor = require('./lib/monitor'),
 	spawn = require('child_process').spawn,
@@ -92,21 +91,52 @@ Control.prototype.kill = function () {
 };
 
 Control.prototype.start = function () {
-	var fh = {};
+	var fh = {},
+		connectData = '',
+		logCount = 0,
+		timeout = null,
+		mark = Date.now(),
+		connected = 0;
 	console.log('Starting server on process: '.grey + process.pid);
 	fh.stdout = function (buffer) {
-		console.log('\nServer Activated by output:'.green);
-		console.log(buffer.toString().grey);
-		monitor.connected = true;
-		if (monitor.serverError) {
-            monitor.serverError = false;
+		var data = buffer.toString().trim();
+		if (data.search(/error/i) > -1) {
+			console.log(data.yellow);
+		} else {
+			logCount += 1;
+			if (logCount % options.logsPerConnect === 0) {
+				connected += 1;
+				console.log(('node ' + connected + ' connected : ' 
+							+ ((Date.now() - mark) / 1000) + '(seconds)').cyan);
+			}
+			if (options.logsPerConnect > 1 || options.nodes > 1) {
+				connectData += data + '\n';
+			}
+			if (options.nodes === connected) {
+				server.stdout.removeListener('data', fh.stdout);
+				console.log(('Server Activated in ' + ((Date.now() - mark) / 1000) + ' seconds by the following output:').green);
+				console.log(('------\n' + connectData + '------')
+						.split('\n')
+						.map(function (line) {
+							return line.grey
+						})
+						.join('\n'));
+				console.log('Waiting...');
+				if (null !== timeout) {
+					clearTimeout(timeout);
+				}
+				monitor.connected = true;
+				if (monitor.serverError) {
+					monitor.serverError = false;
+				}
+				if (monitor.socket) {
+					monitor.tellClient('restarted');
+				}
+				server.stdout.on('data', function (buffer) {
+					console.log(buffer.toString().trim().grey);
+				});
+			}
 		}
-        if (monitor.socket) {
-			monitor.tellClient('restarted');
-		}
-		server.stdout.on('data', function (buffer) {
-			console.log(buffer.toString().trim().grey);
-		});
 	};
 	fh.stderr = function (buffer) {
 		console.log(buffer.toString().trim().yellow);
@@ -115,10 +145,23 @@ Control.prototype.start = function () {
 
 	//servers[control.target] = requir(options.script);
 	options = control.config.options({
-		script: 'index.js'
+		script: 'index.js',
+		nodes: 1,
+		logsPerConnect: 1,
+		timeout: 0,
+		watchfile: null		
 	});
+
 	options.script = path.resolve(options.script);
 	control.options = options;
+
+	if (options.timeout > 0) {
+		timeout = setTimeout(function () {
+			console.log('Server timed out'.red);
+			server.kill('SIGTERM');
+		}, options.timeout * 1000);
+	}
+	
 	server = servers[control.config.target] = spawn(
 			process.execPath,
 			[options.script], {
@@ -144,7 +187,7 @@ Control.prototype.start = function () {
 	   console.log(monitor.connected);
 	   }, 1000);*/
 	server.stderr.on('data', fh.stderr);
-	server.stdout.once('data', fh.stdout);
+	server.stdout.on('data', fh.stdout);
 	//TODO
 	//monitor.on('error', kill);
 	monitor.once('kill', control.kill);

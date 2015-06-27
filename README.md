@@ -38,7 +38,14 @@ grunt.initConfig({
     monitor: {
         default: {
             options: {
-                script: 'app.js'
+                script: 'app.js',
+				//time to wait before considering server connection error
+				timeout: 2,
+				//COMING SOON - TODO -path to a file the monitor will watch to know when the server starts
+				//this file should be tied to the listening event in your server file
+				watchfile: '',
+				//for use with things like node-cluster
+				nodes: 2
             }
         }
     }

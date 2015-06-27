@@ -148,7 +148,7 @@ Monitor.prototype.tellClient = function (command) {
     try {
         monitor.socket.write(command + '\r\n');
     } catch (noClient) {
-        throw new Error('Unacceptable error on first server load');
+        //throw new Error('Unacceptable error on first server load');
     }
 };
 
