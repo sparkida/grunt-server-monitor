@@ -1,9 +1,9 @@
 grunt-server-monitor
 --------------------
+Reloads NodeJS server on file changes. The end. 
 
-A far superior server monitor, uses `grunt-contrib-watch` to trigger server reloads up to 3-4 times faster than Nodemon or Supervisor. Ideal for development environments.
+*Meaning, that's its sole purpose, so generally speaking it should be faster than the others by a noticeable amount, especially if you are already using [grunt-contrib-watch](https://github.com/gruntjs/grunt-contrib-watch) and [grunt-concurrent](https://github.com/sindresorhus/grunt-concurrent).*
 
-`Grunt-server-monitor` works with concurrent processes more effectively by relying on `grunt-contrib-watch` to load a client which tells the monitor to reboot the server.
 
 Options
 -------
@@ -23,9 +23,11 @@ Options
 
 Info
 ----
+`grunt-server-monitor` works with concurrent processes more effectively by relying on `grunt-contrib-watch` to load a client which tells the host monitor to reboot the server.
+
 **The monitor expects the server you use to log something once the `listening` event is called. I.E. "Server connected on port 8080"**
 
-Use with 
+**Use with**
 - [grunt-concurrent](https://www.npmjs.com/package/grunt-concurrent) 
 - [grunt-contrib-watch](https://www.npmjs.com/package/grunt-contrib-watch).
 
@@ -34,40 +36,42 @@ Typical Settings
 ----------------
 
 ```javascript
-grunt.initConfig({
-    watch: {
-        server: {
-            files: ['*.js', 'lib/**/*.js'],
-            tasks: ['monitor'],
-            options: {
-                spawn: false
+module.exports = function (grunt) {
+    grunt.initConfig({
+        watch: {
+            server: {
+                files: ['*.js', 'lib/**/*.js'],
+                tasks: ['monitor'],
+                options: {
+                    spawn: false
+                }
+            },
+        },
+        concurrent: {
+            default: {
+                tasks: ['monitor', 'watch'],
+                options: {
+                    logConcurrentOutput: true
+                }
             }
         },
-    },
-    concurrent: {
-        default: {
-            tasks: ['monitor', 'watch'],
-            options: {
-                logConcurrentOutput: true
+        monitor: {
+            default: {
+                options: {
+                    script: 'app.js',
+                    timeout: 2,
+                    logsPerConnect: 1,
+                    nodes: 1
+                }
             }
         }
-    },
-    monitor: {
-        default: {
-            options: {
-                script: 'app.js',
-				timeout: 2,
-                logsPerConnect: 1,
-				nodes: 1
-            }
-        }
-    }
-});
+    });
 
-grunt.loadNpmTasks('grunt-concurrent');
-grunt.loadNpmTasks('grunt-contrib-watch');
-grunt.loadNpmTasks('grunt-server-monitor');
+    grunt.loadNpmTasks('grunt-concurrent');
+    grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-server-monitor');
 
-grunt.registerTask('default', ['concurrent']);
+    grunt.registerTask('default', ['concurrent']);
+};
 ```
 
