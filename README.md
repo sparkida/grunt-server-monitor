@@ -1,8 +1,25 @@
 grunt-server-monitor
 --------------------
-When things like **nodemon** and **supervisor** can be dreadfully slow and all you want to do is restart your server when files are updated.
+
+A far superior server monitor, uses `grunt-contrib-watch` to trigger server reloads up to 3-4 times faster than Nodemon or Supervisor. Ideal for development environments.
 
 `Grunt-server-monitor` works with concurrent processes more effectively by relying on `grunt-contrib-watch` to load a client which tells the monitor to reboot the server.
+
+Options
+-------
+- **script** 
+    - the script which loads your server or bootstraps your package
+    - defaults to `index.js`
+- **timeout** 
+    - the script which loads your server or bootstraps your package
+    - defaults to 0 (none)
+- **logsPerConnect** 
+    - the number of logs which must occur to determine a connection has been made to the server
+    - the server monitor will distinguish between error logs and regular logs, error logs are ignored in this count
+    - defaults to 1
+- **nodes** 
+    - the amount of different node servers that the `script` will be running
+    - defaults to 1
 
 Info
 ----
@@ -39,16 +56,18 @@ grunt.initConfig({
         default: {
             options: {
                 script: 'app.js',
-				//time to wait before considering server connection error
 				timeout: 2,
-				//COMING SOON - TODO -path to a file the monitor will watch to know when the server starts
-				//this file should be tied to the listening event in your server file
-				watchfile: '',
-				//for use with things like node-cluster
-				nodes: 2
+                logsPerConnect: 1,
+				nodes: 1
             }
         }
     }
 });
+
+grunt.loadNpmTasks('grunt-concurrent');
+grunt.loadNpmTasks('grunt-contrib-watch');
+grunt.loadNpmTasks('grunt-server-monitor');
+
+grunt.registerTask('default', ['concurrent']);
 ```
 

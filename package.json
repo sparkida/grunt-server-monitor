@@ -1,7 +1,7 @@
 {
   "name": "grunt-server-monitor",
   "description": "Grunt task for running an Express Server with grunt-concurrent and reloading on watched file changes",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "author": {
     "name": "Nick Riley",
     "email": "nick@sparkida.com"
