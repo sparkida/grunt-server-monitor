@@ -1,5 +1,6 @@
 *.log
 *.pid
+tmp
 node_modules
 config/*local*
 *.wsdl

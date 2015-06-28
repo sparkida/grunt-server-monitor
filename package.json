@@ -1,35 +1,50 @@
 {
   "name": "grunt-server-monitor",
-  "description": "Grunt task for running an Express Server with grunt-concurrent and reloading on watched file changes",
-  "version": "0.2.13",
+  "description": "Reloads NodeJS server on file changes. The end.",
+  "version": "0.2.2",
+  "homepage": "https://github.com/sparkida/grunt-server-monitor",
   "author": {
     "name": "Nick Riley",
-    "email": "nick@sparkida.com"
+    "email": "nick@sparkida.com",
+    "url": "http://sparkida.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sparkida/grunt-server-monitor"
+    "url": "git://github.com/sparkida/grunt-server-monitor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sparkida/grunt-server-monitor/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/sparkida/grunt-server-monitor/blob/master/LICENSE"
+      "url": "https://github.com/sparkida/grunt-server-monitor/blob/master/LICENSE-MIT"
     }
   ],
   "main": "Gruntfile.js",
   "engines": {
     "node": ">= 0.8.0"
   },
-  "dependencies": {
-    "colors": "^1.1.2"
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
   },
   "keywords": [
-    "grunt plugin",
+    "gruntplugin",
     "express",
     "watch reload",
     "reload",
     "forever",
     "nodemon",
+    "restart",
     "supervisor",
     "server"
   ]

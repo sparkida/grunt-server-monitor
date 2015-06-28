@@ -22,7 +22,7 @@ var path = require('path'),
 		control = this;
 		//circular
 		monitor = control.monitor = Monitor.open(control);
-		grunt.registerMultiTask('monitor', 'Reload an express web server', control.load);
+		grunt.registerMultiTask('monitor', 'Reloads NodeJS server on file changes. The end.', control.load);
 	};
 
 Control.start = function (gruntInstance) {
