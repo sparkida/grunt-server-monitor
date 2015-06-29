@@ -37,7 +37,10 @@ module.exports = function (grunt) {
                     script: 'app.js',
                     timeout: 2,
                     logsPerConnect: 1,
-                    nodes: 1
+                    nodes: 1,
+                    environmentVariables: '', //ie 'ENVIRONMENT=production',
+                    nodeArgs: '', //ie '--harmony --debug'
+                    scriptArgs: ''
                 }
             }
         },
@@ -94,10 +97,60 @@ The server monitor will distinguish between error logs and regular logs, error l
 Type: `Int`
 Default value: `1`
 
-The amount of different node servers that the `script` will be running
+The amount of different node servers that the `script` will be running.
+
+#### options.environmentVariables
+Type: `String`
+Default value: `''`
+
+Environment specific settings to be passed to NodeJS on the command line.
+
+#### options.nodeArgs
+Type: `String`
+Default value: `''`
+
+Arguments to be sent to NodeJS on the command line.
+
+#### options.scriptArgs
+Type: `String`
+Default value: `''`
+
+Arguments to be passed to the script at `options.script`.
+
+
+
+### Arguments and Environment Variables
+
+The options `environmentVariables`, `nodeArgs`, `scriptArgs` are assembled into a command with the `script` option similar to
+
+```bash
+$ [environmentVariables] node [nodeArgs] [script] [scriptArgs]
+```
+
+Allowing you to have full control:
+**The following options...**
+```js
+var options: {
+    script: 'app.js',
+    timeout: 2,
+    logsPerConnect: 1,
+    nodes: 1,
+    environmentVariables: 'ENVIRONMENT=dev',
+    nodeArgs: '--harmony --debug',
+    scriptArgs: '-f foo'
+};
+```
+
+**...will create the following command**
+
+```bash
+$ ENVIRONMENT=dev node --harmony --debug app.js -f "foo"
+```
+
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
-_(Nothing yet)_
+- v0.2.2 - added options to give full control over script at startup
+- v0.2.0 - stable
