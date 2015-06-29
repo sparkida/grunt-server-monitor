@@ -160,6 +160,14 @@ Control.prototype.start = function () {
     control.options = options;
 
     var execPath = options.nodeExecutable.length > 0 ? options.nodeExecutable : process.execPath;
+    var args = (options.script + ' ' + options.scriptArgs).split(' ');
+    var envStr = options.environmentVariables.split(' ').join('&');
+    var env = Object.create(process.env);
+    var procEnv = qs.parse(envStr);
+
+    Object.keys(procEnv).map(function (key) {
+        env[key] = procEnv[key];
+    });
 
     if (options.timeout > 0) {
         timeout = setTimeout(function () {
@@ -168,24 +176,12 @@ Control.prototype.start = function () {
         }, options.timeout * 1000);
     }
     
-    console.log(options.environmentVariables + ' ' + execPath + ' ' + options.nodeArgs);
-    console.log(options.script, options.scriptArgs);
-    var envStr = options.environmentVariables.split(' ').join('&');
-    var env = Object.create(process.env);
-    var procEnv = qs.parse(envStr);
-    Object.keys(procEnv).map(function (key) {
-        env[key] = procEnv[key];
-    });
-    var args = (options.script + ' ' + options.scriptArgs).split(' ');
     server = servers[control.config.target] = spawn(
             execPath,
             args, {
                 stdio: [ 'pipe', 'pipe', 'pipe' ],
                 env: env
             });
-    server.on('error', function (err) {
-        console.log(err);
-    });
 
     server.once('close', function () {
         //monitor.server.lastExitStatus = monitor.connected ? 'success' : 'fail';
