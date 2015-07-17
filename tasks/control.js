@@ -97,10 +97,16 @@ Control.prototype.start = function () {
         logCount = 0,
         timeout = null,
         mark = Date.now(),
+		ignored = 0,
         connected = 0;
     console.log('Starting server on process: '.grey + process.pid);
     fh.stdout = function (buffer) {
         var data = buffer.toString().trim();
+		if (ignored < options.ignoreLogs) {
+			ignored += 1;
+			console.log('[ignored]', data);
+			return;
+		}
         if (data.search(/error/i) > -1) {
             console.log(data.yellow);
         } else {
@@ -149,6 +155,7 @@ Control.prototype.start = function () {
         script: 'index.js',
         nodes: 1,
         logsPerConnect: 1,
+		ignoreLogs: 0,
         timeout: 0,
         environmentVariables: '',
         nodeArgs: '',

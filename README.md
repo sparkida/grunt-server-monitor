@@ -36,6 +36,7 @@ module.exports = function (grunt) {
                 options: {
                     script: 'app.js',
                     timeout: 2,
+					ignoreLogs: 0,
                     logsPerConnect: 1,
                     nodes: 1,
                     environmentVariables: '', //ie 'ENVIRONMENT=production',
@@ -93,7 +94,13 @@ The number of logs which must occur to determine a connection has been made to t
 
 The server monitor will distinguish between error logs and regular logs, error logs are ignored in this count.
 
-#### options.logsPerConnect
+#### options.ignoreLogs
+Type: `Int`
+Default value: `0`
+
+Optionally ignore this number of logs at start. (In case your script outputs general startup info)
+
+#### options.nodes
 Type: `Int`
 Default value: `1`
 
@@ -133,6 +140,7 @@ Allowing you to have full control:
 var options: {
     script: 'app.js',
     timeout: 2,
+	ignoreLogs: 0,
     logsPerConnect: 1,
     nodes: 1,
     environmentVariables: 'ENVIRONMENT=dev',
