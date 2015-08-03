@@ -28,7 +28,6 @@ var exit = function () {
         } catch (noFileErr) {
         }
     };
-process.once('exit', exit);
 
 Monitor.open = function (control) {
     return new Monitor(control);
@@ -74,8 +73,10 @@ Monitor.prototype.loadServer = function () {
 Monitor.prototype.listenHandler = function () {
     //console.log('starting monitor service at: '.magenta, monitor.type);
     var address = monitor.server.address();
-    fs.writeFile(lock, JSON.stringify({port: address.port}), function () {
+    fs.writeFile(lock, JSON.stringify({port: address.port}), function (err) {
+		if (err) throw err;
         console.log('Monitor server started on port: '.grey + address.port);
+		process.once('exit', exit);
         monitor.emit('started');
     });
 };
