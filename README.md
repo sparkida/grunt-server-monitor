@@ -1,5 +1,6 @@
-# grunt-server-monitor
+# grunt-server-monitor v2.4
 
+**Latest release fixes an issue that may have prevented the server from restarting on changes**
 > Reloads NodeJS server on file changes. The end.
 
 *Meaning, that's its sole purpose, so generally speaking it should be faster than the others by a noticeable amount, especially if you are already using [grunt-contrib-watch](https://github.com/gruntjs/grunt-contrib-watch) and [grunt-concurrent](https://github.com/sindresorhus/grunt-concurrent).*

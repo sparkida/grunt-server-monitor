@@ -1,7 +1,7 @@
 {
   "name": "grunt-server-monitor",
   "description": "Reloads NodeJS server on file changes. The end.",
-  "version": "0.2.32",
+  "version": "0.2.4",
   "homepage": "https://github.com/sparkida/grunt-server-monitor",
   "author": {
     "name": "Nick Riley",
