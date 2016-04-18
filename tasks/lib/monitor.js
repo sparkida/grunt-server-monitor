@@ -12,15 +12,15 @@ var net = require('net'),
     fs = require('fs'),
     path = require('path'),
     EventEmitter = require('events').EventEmitter,
-    nodePath = process.execPath,
     lock = path.join(__dirname, '.monitor.lock'),
     monitor,
-    control,
     Monitor = function (control) {
         monitor = this;
         //circular
         monitor.control = control;
     };
+
+Monitor.LockFile = lock;
 
 var exit = function () {
         try {
@@ -44,11 +44,11 @@ Monitor.prototype.load = function () {
     //console.log('loading the monitor');
     fs.readFile(lock, function (err, data) {
         if (err) {
-            console.log('loading the monitor server...'.grey);
+            //console.log('loading the monitor server...'.grey);
             monitor.type = 'host';
             monitor.loadServer();
         } else {
-            console.log('connecting to monitor...'.grey);
+            //console.log('connecting to monitor...'.grey);
             monitor.type = 'client';
             try {
                 data = JSON.parse(data);
@@ -71,11 +71,13 @@ Monitor.prototype.loadServer = function () {
 };
 
 Monitor.prototype.listenHandler = function () {
-    //console.log('starting monitor service at: '.magenta, monitor.type);
+    //console.log('starting monitor service at:'.magenta, monitor.type);
     var address = monitor.server.address();
-    fs.writeFile(lock, JSON.stringify({port: address.port}), function (err) {
-		if (err) throw err;
-        console.log('Monitor server started on port: '.grey + address.port);
+    fs.writeFile(lock, JSON.stringify({port: address.port, pid: process.pid, lastRestart: Date.now()}), function (err) {
+		if (err) {
+            throw err;
+        }
+        console.log('monitor server started on port: '.grey + address.port);
 		process.once('exit', exit);
         monitor.emit('started');
     });
@@ -129,18 +131,19 @@ Monitor.prototype.reset = function () {
         if (error) {
             throw error;
         }
-        console.log('reloading');
+        //console.log('reloading');
         monitor.type = 'host';
         monitor.loadServer();
     });
 };
 
-Monitor.prototype.connect = function (address) {
+Monitor.prototype.connect = function (config) {
     //this is attached to the client controller
     //see server for host controller
     //console.log('opening connection to host', address);
-    var client = net.connect(address);
+    var client = net.connect({port: config.port});
     monitor.client = client;
+    monitor.config = config;
     client.on('connect', monitor.clientHandler);
     client.on('error', monitor.clientError);
 };

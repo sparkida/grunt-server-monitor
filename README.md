@@ -22,6 +22,8 @@ grunt.loadNpmTasks('grunt-server-monitor');
 
 ## The "monitor" task
 
+**Tip:** Use "r" to manually restart the server once it is running.
+
 ### Overview
 1. In your project's Gruntfile, add a section named `monitor` to the data object passed into `grunt.initConfig()`.
 2. The monitor relies on watch tasks to trigger reloads. Add a `watch:server` target to watch your server files and directories.
