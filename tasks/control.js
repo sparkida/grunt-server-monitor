@@ -13,6 +13,9 @@ const Worker = require(path.join(__dirname, 'lib', 'worker'));
 const lockFile = path.join(__dirname, '.lock');
 const fs = require('fs');
 const net = require('net');
+const stdin = process.stdin;
+const tty = require('tty');
+const readline = require('readline');
 
 var control;
 var grunt;
@@ -20,22 +23,42 @@ var grunt;
 var monitor;
 //worker process; spawns server from options
 var worker;
-//child worker; communicates with master
-var client;
+var rl;
 
-class Client {
-    constructor(socket) {
-        client = this;   
-        client.socket = socket;
-        client.socket.on('connect', (connection) => {
-            //console.log('connected to:', control.lockConfig.port);
-            console.log('requesting restart...'.cyan);
-            control.done();
-        });
-    }
-
+if (tty.isatty(stdin)) {
+    //console.log('capturing', tty.isatty(stdin), process.pid);
+    process.on('exit', () => {
+        try {
+            fs.unlinkSync(Control.prototype.lockFile);
+        } catch (e) {
+        }
+        try {
+            fs.unlinkSync(Worker.prototype.lockFile);
+        } catch (e) {
+        }
+    });
+    rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        terminal: false
+    });
+    rl.on('line', (key) => {
+        if (key === 'r') {
+            try {
+                control.connect();
+            } catch(e) {
+            }
+        }
+    });
 }
 
+process.on('SIGCONT', () => {
+    //console.log('resuming', tty.isatty(stdin), process.pid);
+    if (rl) {
+        //console.log('calling rl');
+        rl.resume();
+    }
+});
 
 class Control {
 
@@ -50,15 +73,10 @@ class Control {
     }
 
     initialize() {
-        console.log('initializing');
+        //console.log('initializing');
         control.config = this;
         control.done = control.config.async();
-        try {
-            control.lockConfig = JSON.parse(fs.readFileSync(lockFile));
-        } catch (e) {
-            control.lockConfig = {port: 0};
-        }
-        console.log('control lock config:', control.lockConfig);
+        //console.log('control lock config:', control.lockConfig);
         var options = control.config.options({
             script: 'index.js',
             nodes: 1,
@@ -76,37 +94,55 @@ class Control {
     }
 
     connect() {
-        console.log('connecting');
+        try {
+            control.lockConfig = JSON.parse(fs.readFileSync(lockFile));
+        } catch (e) {
+            control.lockConfig = {port: 0};
+        }
+        //console.log('connecting');
         var client = null;
         if (!control.lockConfig.port) {
             control.createServer();
         } else {
-            client = net.connect(control.lockConfig.port);
+            control.client = client = net.connect(control.lockConfig.port);
             client.on('error', (err) => {
                 console.log('error:', control.lockConfig.port, err);
-                fs.unlinkSync(control.lockFile);
+                try {
+                    fs.unlinkSync(control.lockFile);
+                } catch (e) {
+                }
                 control.lockConfig.port = 0;
                 control.createServer();
             });
-            control.client = new Client(client);
+            client.on('connect', (connection) => {
+                //console.log('connected to:', control.lockConfig.port);
+                //console.log('requesting restart...'.cyan);
+                if (control.done) {
+                    control.done();
+                }
+            });
+        }
+    }
+
+    restartWorker() {
+        worker.clearTimer();
+        if (worker.connected) {
+            worker.server.on('exit', () => {
+                //console.log('server killed'.cyan);
+                worker.startServer();
+            });
+            worker.server.kill();
+        } else {
+            worker.startServer();
         }
     }
 
     createServer() {
         monitor = net.createServer((socket) => {
-            console.log('socket in', process.pid);
-            console.log('restarting server');
-            console.log('child connected:', worker.connected);
-            worker.clearTimer();
-            if (worker.connected) {
-                worker.server.on('exit', () => {
-                    console.log('server killed'.cyan);
-                    worker.startServer();
-                });
-                worker.server.kill();
-            } else {
-                worker.startServer();
-            }
+            //console.log('socket in', process.pid);
+            console.log('Restarting Server...'.cyan);
+            //console.log('child connected:', worker.connected);
+            control.restartWorker();
         }).on('error', (err) => {
             // handle errors here
             throw err;
@@ -116,36 +152,41 @@ class Control {
             var port = monitor.address().port;
             control.lockConfig = {port: port};
             fs.writeFileSync(control.lockFile, JSON.stringify(control.lockConfig));
-            console.log('opened server on %j', port);
+            //console.log('opened server on %j', port);
             control.load();
         });
         control.monitor = monitor;
     }
 
     load() {
-        console.log('loading');
+        //console.log('loading');
         control.worker = worker = new Worker(control.options, control.done);
-        console.log('config:'.red, worker.lockConfig);
+        //console.log('config:'.red, worker.lockConfig);
         //connect or spawn
         if (worker.lockConfig) {
-            console.log('should restart pid:', process.pid);
+            //console.log('should restart pid:', process.pid);
             worker.restart();
         } else {
-            console.log('starting worker pid:', process.pid);
+            //console.log('starting worker pid:', process.pid);
             worker.startServer();
         }
-    }
-
-    spawn() {
-        
     }
 }
 
 Control.prototype.lockFile = lockFile;
 
 process.on('uncaughtException', function (err) {
-    console.log('*****');
+    console.log('**Uncaught Exception**');
     console.log(err.stack.red);
+    try {
+        var data = fs.readFileSync(lockFile);
+        data = JSON.parse(data);
+        process.kill(data.pid, 'SIGTERM');
+    } catch (e) {
+    }
+    setTimeout(() => {
+        process.exit();
+    }, 250);
 });
 
 module.exports = Control.start;
