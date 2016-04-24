@@ -1,4 +1,4 @@
 *.log
 *.pid
-tasks/lib/*.lock
+*.lock
 node_modules/

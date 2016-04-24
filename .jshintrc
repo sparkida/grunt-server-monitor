@@ -6,5 +6,10 @@
     "unused": "vars",
     "curly": true,
     "laxbreak": true,
-    "esnext": true
+    "esnext": true,
+    "predef": [
+        "Enum",
+        "appRequire",
+        "appCommon"
+    ]
 }
