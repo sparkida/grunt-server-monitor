@@ -1,9 +1,10 @@
-# grunt-server-monitor v2.4
+# grunt-server-monitor v3.0.0
 
-**Latest release fixes an issue that may have prevented the server from restarting on changes**
-> Reloads NodeJS server on file changes. The end.
+**Reloads NodeJS server on file changes. The end.**
 
-*Meaning, that's its sole purpose, so generally speaking it should be faster than the others by a noticeable amount, especially if you are already using [grunt-contrib-watch](https://github.com/gruntjs/grunt-contrib-watch) and [grunt-concurrent](https://github.com/sindresorhus/grunt-concurrent).*
+- **V3 uses ES6:** You'll need NodeJS v5.x or use ***"--harmony"*** flags with grunt
+
+- **Tip:** Use "r" to manually restart the server once it is running. (you'll have to press "enter")
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -20,9 +21,6 @@ Once the plugin has been installed, it may be enabled inside your Gruntfile with
 grunt.loadNpmTasks('grunt-server-monitor');
 ```
 
-## The "monitor" task
-
-**Tip:** Use "r" to manually restart the server once it is running.
 
 ### Overview
 1. In your project's Gruntfile, add a section named `monitor` to the data object passed into `grunt.initConfig()`.
@@ -163,5 +161,6 @@ $ ENVIRONMENT=dev node --harmony --debug app.js -f "foo"
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+- v3.0.0 - completely rebuilt, more effiicient signaling, error handling, and can restart with "r"
 - v0.2.2 - added options to give full control over script at startup
 - v0.2.0 - stable
